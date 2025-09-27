@@ -7,7 +7,6 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
     header('Location: login.php');
 }
 
-
 if (isset($_POST['search']) && $_POST['search'] !== '') {
   setcookie('search', $_POST['search'], time() + (86400 * 30), "/");
 } else {
@@ -16,8 +15,6 @@ if (isset($_POST['search']) && $_POST['search'] !== '') {
     setcookie('search', '', time() - 3600, '/'); 
   }
 }
-
-
 ?>
 
 
@@ -74,7 +71,7 @@ if (isset($_POST['search']) && $_POST['search'] !== '') {
                 <table class="table table-bordered">
                   <thead>
                     <tr>
-                      <th style="width: 10px">#</th>
+                      <th style="width: 10px">ID</th>
                       <th>Name</th>
                       <th>Email</th>
                       <th>Role</th>
@@ -111,6 +108,7 @@ if (isset($_POST['search']) && $_POST['search'] !== '') {
                     ?>
                   </tbody>
                 </table><br>
+                <!-- Pagination -->
                 <nav aria-label="Page navigation example" style="float:right">
                   <ul class="pagination">
                     <li class="page-item"><a class="page-link" href="?pageno=1">First</a></li>
@@ -126,7 +124,6 @@ if (isset($_POST['search']) && $_POST['search'] !== '') {
                 </nav>
               </div>
               <!-- /.card-body -->
-
             </div>
             <!-- /.card -->
           </div>
