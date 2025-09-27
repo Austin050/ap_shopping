@@ -21,25 +21,127 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
           <!-- /.card-header -->
           <div class="card-body">
             <div>
-              <a href="add.php" type="button" class="btn btn-success">New Blog Post</a>
+              <a href="product_add.php" type="button" class="btn btn-success">Create new Product</a>
             </div>
             <br />
             <table class="table table-bordered">
               <thead>
                 <tr>
                   <th style="width: 10px">#</th>
-                  <th>Title</th>
-                  <th>Content</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>In-Stock</th>
+                  <th>Price</th>
+
                   <th style="width: 40px">Actions</th>
                 </tr>
               </thead>
-           
+              <?php
+              if (!empty($_GET['pageno'])) {
+                $pageno = $_GET['pageno'];
+              } else {
+                $pageno = 1;
+              }
+              $noOfRecordsperPage = 5;
+              // offset example = if pageno is 1-> offset starts from 0 if it is 2 -> offset will start at 1
+              $offset = ($pageno - 1) * $noOfRecordsperPage;
+
+              if (empty($_POST['search'])) {
+                $smtm = $pdo->prepare('SELECT * FROM products ORDER BY id DESC');
+                $smtm->execute();
+                $rawResult = $smtm->fetchALL();
+                // ceil formula 
+                $totalpages = ceil(count($rawResult) / $noOfRecordsperPage);
+
+                $smtm = $pdo->prepare("SELECT * FROM products ORDER BY id DESC LIMIT $offset,$noOfRecordsperPage");
+                $smtm->execute();
+                $result = $smtm->fetchALL();
+              } else {
+                $searchKey = $_POST["search"];
+                $smtm = $pdo->prepare("SELECT * FROM products WHERE title LIKE '%$searchKey%' ORDER BY id DESC");
+                $smtm->execute();
+                $rawResult = $smtm->fetchALL();
+                // ceil formula 
+                $totalpages = ceil(count($rawResult) / $noOfRecordsperPage);
+
+                $smtm = $pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' ORDER BY id DESC LIMIT $offset,$noOfRecordsperPage");
+                $smtm->execute();
+                $result = $smtm->fetchALL();
+              }
+
+
+              ?>
               <tbody>
-               
+                <?php
+                // loop through and show the data from database 
+                if ($result) {
+                  $i = 1;
+                  foreach ($result as $value) { ?>
+                    <?php
+                    $catsmtm = $pdo->prepare("SELECT * FROM categories WHERE id=".$value['category_id']);
+                    $catsmtm->execute();
+                    $cat_result = $catsmtm->fetchALL();
+                    ?>
+                    <tr>
+                      <td><?= $i ?></td>
+                      <td><?= escape($value['name']) ?></td>
+                      <td><?= escape(substr($value['description'], 0, 30)); ?></td>
+                      <td><?= escape($cat_result[0]['name']) ?></td>
+                      <td><?= escape($value['quantity']) ?></td>
+                      <td><?= escape($value['price']) ?></td>
+
+                      <td>
+                        <div class="btn-group">
+                          <div class="container">
+                            <a href="product_edit.php?id=<?= $value['id'] ?>" type="button" class="btn btn-warning">Edit</a>
+                          </div>
+                          <div class="container">
+                            <a href="product_delete.php?id=<?= $value['id'] ?>" type="button" class="btn btn-danger"
+                              onclick="return confirm('Are you sure you want to delete this post?')">Delete</a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                <?php
+                    $i++;
+                  }
+                }
+                ?>
               </tbody>
             </table><br>
             <!-- Card Body -->
-          
+            <nav aria-label="Page navigation example" style="float: right;">
+              <ul class="pagination">
+                <!-- send page number data to the php code with GET method -->
+                <li class="page-item"><a href="?pageno=1" class="page-link">First</a></li>
+                <!-- becuase Previous, only 2 to last number can be navigated, but not 1 or less -->
+                <li class="page-item" <?php if ($pageno <= 1) {
+                                        echo "disabled";
+                                      } ?>>
+                  <a href="<?php if ($pageno <= 1) {
+                              echo '#';
+                            } else {
+                              echo "?pageno=" . ($pageno - 1);
+                            } ?>" class="page-link">Previous</a>
+                </li>
+                <li class="page-item">
+                  <a href="#" class="page-link"><?php echo $pageno; ?></a>
+                </li>
+                <li class="page-item" <?php if ($pageno >= $totalpages) {
+                                        echo "disabled";
+                                      } ?>>
+                  <a href="<?php if ($pageno >= $totalpages) {
+                              echo '#';
+                            } else {
+                              echo "?pageno=" . ($pageno + 1);
+                            } ?>" class="page-link">Next</a>
+                </li>
+                <li class="page-item">
+                  <a href="?pageno=<?php echo $totalpages ?>" class="page-link">Last</a>
+                </li>
+              </ul>
+            </nav>
           </div>
 
         </div>
