@@ -27,6 +27,7 @@ if ($_POST) {
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['name'];
+            $_SESSION['role'] = 1;
             $_SESSION['logged_in'] = time();
 
             // navigate to 
@@ -34,7 +35,7 @@ if ($_POST) {
         }
     }
     echo "<script>
-            alert('Incorrect email OR password')
+            alert('Incorrect email or Password')
          </script>";
 }
 

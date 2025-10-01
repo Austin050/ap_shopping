@@ -6,6 +6,20 @@ require '../config/common.php';
 if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
   header('Location: login.php');
 }
+
+if ($_SESSION['role'] != 1) {
+  echo "<script>alert('You are not Admin. Get the hell out of here!!');window.location.href='login.php';</script>";
+}
+
+if (isset($_POST['search']) && $_POST['search'] !== '') {
+  setcookie('search', $_POST['search'], time() + (86400 * 30), "/");
+} else {
+  if (empty($_GET['pageno'])) {
+    unset($_COOKIE['search']);
+    setcookie('search', '', time() - 3600, '/');
+  }
+}
+
 ?>
 <?php include 'header.php';
 ?>
@@ -43,11 +57,11 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
               } else {
                 $pageno = 1;
               }
-              $noOfRecordsperPage = 5;
+              $noOfRecordsperPage = 1;
               // offset example = if pageno is 1-> offset starts from 0 if it is 2 -> offset will start at 1
               $offset = ($pageno - 1) * $noOfRecordsperPage;
 
-              if (empty($_POST['search'])) {
+              if (empty($_POST['search']) && empty($_COOKIE['search'])) {
                 $smtm = $pdo->prepare('SELECT * FROM products ORDER BY id DESC');
                 $smtm->execute();
                 $rawResult = $smtm->fetchALL();
@@ -58,8 +72,8 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
                 $smtm->execute();
                 $result = $smtm->fetchALL();
               } else {
-                $searchKey = $_POST["search"];
-                $smtm = $pdo->prepare("SELECT * FROM products WHERE title LIKE '%$searchKey%' ORDER BY id DESC");
+                $searchKey = isset($_POST['search']) ? $_POST['search'] : $_COOKIE['search'];
+                $smtm = $pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' ORDER BY id DESC");
                 $smtm->execute();
                 $rawResult = $smtm->fetchALL();
                 // ceil formula 
@@ -79,7 +93,7 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
                   $i = 1;
                   foreach ($result as $value) { ?>
                     <?php
-                    $catsmtm = $pdo->prepare("SELECT * FROM categories WHERE id=".$value['category_id']);
+                    $catsmtm = $pdo->prepare("SELECT * FROM categories WHERE id=" . $value['category_id']);
                     $catsmtm->execute();
                     $cat_result = $catsmtm->fetchALL();
                     ?>

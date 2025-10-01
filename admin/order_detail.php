@@ -6,6 +6,10 @@ require '../config/common.php';
 if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
     header('Location: login.php');
 }
+if ($_SESSION['role'] != 1) {
+    header("Location: login.php");
+}
+
 ?>
 <?php include 'header.php';
 ?>
@@ -42,7 +46,7 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
                     ?>
                     <!-- /.card-header -->
                     <div class="card-body">
-                    <a href="order_list.php" class="btn btn-info mb-3">Back</a>
+                        <a href="order_list.php" class="btn btn-info mb-3">Back</a>
 
                         <br />
                         <table class="table table-bordered">
@@ -71,7 +75,7 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
                                             <td><?= escape($p_result[0]['name']) ?></td>
                                             <td><?= escape($value['quanity']) ?></td>
                                             <td><?= escape(date('Y-m-d', strtotime($value['order_date']))) ?></td>
-                                            
+
                                         </tr>
                                 <?php
                                         $i++;

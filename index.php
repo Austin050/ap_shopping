@@ -1,15 +1,25 @@
 <?php include('header.php') ?>
 <?php
+
+if (isset($_POST['search']) && $_POST['search'] !== '') {
+	setcookie('search', $_POST['search'], time() + (86400 * 30), "/");
+} else {
+	if (empty($_GET['pageno'])) {
+		unset($_COOKIE['search']);
+		setcookie('search', '', time() - 3600, '/');
+	}
+}
+
 if (!empty($_GET['pageno'])) {
 	$pageno = $_GET['pageno'];
 } else {
 	$pageno = 1;
 }
-$noOfRecordsperPage = 6;
+$noOfRecordsperPage = 1;
 // offset example = if pageno is 1-> offset starts from 0 if it is 2 -> offset will start at 1
 $offset = ($pageno - 1) * $noOfRecordsperPage;
 
-if (empty($_POST['search'])) {
+if (empty($_POST['search']) && empty($_COOKIE['search'])) {
 	$smtm = $pdo->prepare('SELECT * FROM products ORDER BY id DESC');
 	$smtm->execute();
 	$rawResult = $smtm->fetchALL();
@@ -20,7 +30,7 @@ if (empty($_POST['search'])) {
 	$smtm->execute();
 	$result = $smtm->fetchALL();
 } else {
-	$searchKey = $_POST["search"];
+	$searchKey = isset($_POST['search']) ? $_POST['search'] : $_COOKIE['search'];
 	$smtm = $pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' ORDER BY id DESC");
 	$smtm->execute();
 	$rawResult = $smtm->fetchALL();

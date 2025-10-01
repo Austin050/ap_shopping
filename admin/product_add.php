@@ -8,6 +8,10 @@ if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
   header('Location: login.php');
 }
 
+if ($_SESSION['role'] != 1) {
+  header("Location: login.php");
+}
+
 if ($_POST) {// back-end validation if block 
   if (empty($_POST['name']) || empty($_POST['description']) || empty($_POST['category'])
       || empty($_POST['quantity']) || empty($_POST['price']) || empty($_FILES['image'])) {

@@ -6,6 +6,9 @@ require '../config/common.php';
 if (empty($_SESSION['user_id']) && empty($_SESSION['logged_in'])) {
     header('Location: login.php');
 }
+if ($_SESSION['role'] != 1) {
+  header("Location: login.php");
+}
 
 // as usual accept with variables
 if ($_POST) {
@@ -137,7 +140,7 @@ $result = $stmt->fetchAll();
                                 ?>
                                 <label for="category">Category</label>
                                 <p class="text-danger"><?= empty($catError) ? '' : '*' . $catError; ?></p>
-                                <select name="category" class="form-control" id="category">
+                                <select name="category" class="form-control border" id="category">
                                     <?php foreach ($cat_result as $value) { ?>
                                         <?php if ($value['id'] == $result[0]['category_id']) : ?>
                                             <option value="<?= $value['id'] ?>" selected><?= $value['name'] ?></option>
