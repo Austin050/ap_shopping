@@ -84,7 +84,6 @@ if ($_POST) {
                 $price = $_POST["price"];
                 $id = $_POST["id"];
 
-
                 $stmt = $pdo->prepare("UPDATE products SET name=:name, description=:description, 
                     category_id=:category_id, quantity=:quantity, price=:price WHERE id=:id");
                 $result = $stmt->execute(
@@ -107,8 +106,7 @@ $stmt = $pdo->prepare("SELECT * FROM products WHERE id=" . $_GET['id']);
 $stmt->execute();
 $result = $stmt->fetchAll();
 ?>
-<?php include 'header.php';
-?>
+<?php include 'header.php'; ?>
 <!-- Main content -->
 
 <div class="content">

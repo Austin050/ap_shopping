@@ -54,10 +54,21 @@ require 'config/common.php';
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
+					<!-- Loop through the SESSION to show the add to cart quantity in a header -->
+					<?php
+					// define totalQty as 0 
+					$totalQty = 0; 
+					if (isset($_SESSION['cart'])) { // check whether SESSION['cart'] exist 
+						$cartQty = $_SESSION['cart'];
+						foreach ($cartQty as $key => $qty) { // loop the quantity in a SESSIOn['cart']
+							$totalQty += $qty; 	
+						}
+					}
+					?>
 					<!-- Collect the nav links, forms, and other content for toggling -->
 					<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
 						<ul class="nav navbar-nav navbar-right">
-							<li class="nav-item"><a href="#" class="cart"><span class="ti-bag"></span></a></li>
+							<li class="nav-item"><a href="cart.php" class="cart"><span class="ti-bag"><span class="text-danger mb-3"><?= $totalQty ?></span></span></a></li>
 							<li class="nav-item">
 								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
 							</li>

@@ -15,29 +15,42 @@ if (!empty($_GET['pageno'])) {
 } else {
 	$pageno = 1;
 }
-$noOfRecordsperPage = 1;
+$noOfRecordsperPage = 6;
 // offset example = if pageno is 1-> offset starts from 0 if it is 2 -> offset will start at 1
 $offset = ($pageno - 1) * $noOfRecordsperPage;
 
 if (empty($_POST['search']) && empty($_COOKIE['search'])) {
-	$smtm = $pdo->prepare('SELECT * FROM products ORDER BY id DESC');
-	$smtm->execute();
-	$rawResult = $smtm->fetchALL();
-	// ceil formula 
-	$totalpages = ceil(count($rawResult) / $noOfRecordsperPage);
+	if (!empty($_GET['category_id'])) {
+		$catid = $_GET['category_id'];
+		$smtm = $pdo->prepare("SELECT * FROM products WHERE category_id=$catid AND quantity > 0 ORDER BY id DESC");
+		$smtm->execute();
+		$rawResult = $smtm->fetchALL();
+		// ceil formula 
+		$totalpages = ceil(count($rawResult) / $noOfRecordsperPage);
 
-	$smtm = $pdo->prepare("SELECT * FROM products ORDER BY id DESC LIMIT $offset,$noOfRecordsperPage");
-	$smtm->execute();
-	$result = $smtm->fetchALL();
+		$smtm = $pdo->prepare("SELECT * FROM products WHERE category_id=$catid AND quantity > 0 ORDER BY id DESC LIMIT $offset,$noOfRecordsperPage");
+		$smtm->execute();
+		$result = $smtm->fetchALL();
+	} else {
+		$smtm = $pdo->prepare('SELECT * FROM products WHERE quantity > 0 ORDER BY id DESC');
+		$smtm->execute();
+		$rawResult = $smtm->fetchALL();
+		// ceil formula 
+		$totalpages = ceil(count($rawResult) / $noOfRecordsperPage);
+
+		$smtm = $pdo->prepare("SELECT * FROM products WHERE quantity > 0 ORDER BY id DESC LIMIT $offset,$noOfRecordsperPage");
+		$smtm->execute();
+		$result = $smtm->fetchALL();
+	}
 } else {
 	$searchKey = isset($_POST['search']) ? $_POST['search'] : $_COOKIE['search'];
-	$smtm = $pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' ORDER BY id DESC");
+	$smtm = $pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' AND quantity > 0 ORDER BY id DESC");
 	$smtm->execute();
 	$rawResult = $smtm->fetchALL();
 	// ceil formula 
 	$totalpages = ceil(count($rawResult) / $noOfRecordsperPage);
 
-	$smtm = $pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' ORDER BY id DESC LIMIT $offset,$noOfRecordsperPage");
+	$smtm = $pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' AND quantity > 0 ORDER BY id DESC LIMIT $offset,$noOfRecordsperPage");
 	$smtm->execute();
 	$result = $smtm->fetchALL();
 }
@@ -58,7 +71,7 @@ if (empty($_POST['search']) && empty($_COOKIE['search'])) {
 						?>
 						<!-- Categories -->
 						<?php foreach ($catResult as $key => $value) { ?>
-							<a href="#" data-toggle="collapse"><span class="lnr lnr-arrow-right"></span><?= escape($value['name']) ?></a>
+							<a href="index.php?category_id=<?= $value['id'] ?>"><span class="lnr lnr-arrow-right"></span><?= escape($value['name']) ?></a>
 						<?php } ?>
 					</li>
 				</ul>
@@ -101,21 +114,32 @@ if (empty($_POST['search']) && empty($_COOKIE['search'])) {
 						foreach ($result as $key => $value) { ?>
 							<div class="col-lg-4 col-md-6">
 								<div class="single-product">
-									<img class="img-fluid" src="admin/images/<?= escape($value['image']) ?>" style="height: 280px;" alt="">
+									<a href="product_detail.php?id=<?= $value['id'] ?>">
+										<img class="img-fluid" src="admin/images/<?= escape($value['image']) ?>" style="height: 280px;" alt="">
+									</a>
 									<div class="product-details">
 										<h6><?= escape($value['name']) ?></h6>
 										<div class="price">
 											<h6><?= escape($value['price']) ?></h6>
 										</div>
 										<div class="prd-bottom">
-											<a href="" class="social-info">
-												<span class="ti-bag"></span>
-												<p class="hover-text">add to bag</p>
-											</a>
-											<a href="" class="social-info">
+										<form action="addtocart.php" method="post">
+											<input type="hidden" name="_token" value="<?= $_SESSION['_token'] ?>">
+											<input type="hidden" name="id" value="<?= $value['id'] ?>">
+											<!-- As there is no choice for quantity in the homepage product view as in the product detail page. only one quantity will be sent -->
+											<input type="hidden" name="qty" value="1"> 
+
+											<div class="social-info">
+												<button type="submit" style="display:contents" class="social-info">
+													<span class="ti-bag"></span>
+														<p class="hover-text" style="left:24px">Add to cart</p>
+												</button>
+											</div>
+											<a href="product_detail.php?id=<?= $value['id'] ?>" class="social-info">
 												<span class="lnr lnr-move"></span>
 												<p class="hover-text">view more</p>
 											</a>
+										</form>
 										</div>
 									</div>
 								</div>
