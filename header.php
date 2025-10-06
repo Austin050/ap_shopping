@@ -45,7 +45,7 @@ require 'config/common.php';
 			<nav class="navbar navbar-expand-lg navbar-light main_box">
 				<div class="container">
 					<!-- Brand and toggle get grouped for better mobile display -->
-					<a class="navbar-brand logo_h" href="index.html">
+					<a class="navbar-brand logo_h" href="index.php">
 						<h4>AP Shopping<h4>
 					</a>
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -95,7 +95,8 @@ require 'config/common.php';
 		<div class="container">
 			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
 				<div class="col-first">
-					<h1>Welcome</h1>
+					<h1>Welcome <?= escape($_SESSION['name']) ?></h1>
+					<a href="logout.php" class="primary-btn" style="line-height: 30px; color: black; background: white;">Log out</a>
 
 				</div>
 			</div>
